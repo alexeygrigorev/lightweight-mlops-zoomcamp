@@ -1,0 +1,5 @@
+.ipynb_checkpoints
+*.parquet
+mlruns
+lin_reg.bin
+mlflow.db
