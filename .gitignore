@@ -3,3 +3,4 @@
 mlruns
 lin_reg.bin
 mlflow.db
+logs/
