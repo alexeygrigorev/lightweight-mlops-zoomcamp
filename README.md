@@ -39,9 +39,13 @@ any tool.
 * 10 min: Monitor the predictive performance of this model
 * 5 min: Summary & wrapping up
 
+
 ## What's MLOps 
 
 Poll: What's MLOps?
+
+Link to the poll: https://app.sli.do/event/peUEj7S4qoSFjpg9tVFanb/live/questions
+
 
 * https://datatalks.club/blog/mlops-10-minutes.html
 
