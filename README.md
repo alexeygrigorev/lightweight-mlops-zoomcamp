@@ -4,6 +4,15 @@ This is stripped-down version of
 [MLOps Zoomcamp](https://github.com/DataTalksClub/mlops-zoomcamp) 
 
 
+About the instructor:
+
+* Principal Data Scientist at OLX Group
+* Founder of [DataTalks.Club](https://datatalks.club/) - community of 22k data enthusiasts
+* Author of [ML Bookcamp](https://mlbookcamp.com/)
+* Instructor of [ML Zoomcamp](http://mlzoomcamp.com/) and [MLOps Zoomcamp](https://github.com/DataTalksClub/mlops-zoomcamp) 
+* Connect with me on [LinkedIn](https://www.linkedin.com/in/agrigorev/) and [Twitter](https://twitter.com/Al_Grigor) 
+
+
 In this workshop, we will:
 
 * Track experiments
@@ -18,6 +27,17 @@ We'll use one tool - ML flow, but the principles will apply to
 any tool.
 
 
+## Plan
+
+* 5 min: Discuss what's MLOps and how it helps with the entire ML project lifecycle 
+* 10 min: Prepare the environment and train our model (ride duration prediction)
+* 10 min: Install and run MLFlow for experiment tracking
+* 10 min: Use Scikit-Learn pipelines to make model management simpler
+* 10 min: Convert a notebook for training a model to a Python script
+* 15 min: Save and load the model with MLFlow model registry (and without)
+* 15 min: Serve the model as a web service
+* 10 min: Monitor the predictive performance of this model
+* 5 min: Summary & wrapping up
 
 ## What's MLOps 
 
@@ -56,6 +76,17 @@ On Linux you might also need to instal `pexpect` for jupyter:
 ```bash
 pipenv install --dev jupyter pexpect
 ```
+
+Run poll: "Which virtual environment managers have you used"
+
+Options:
+
+- Conda
+- Python venv
+- Pipenv
+- Poetry
+- Other
+- Didn't use any
 
 We will use the data from the [NYC TLC website](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page):
 
@@ -200,6 +231,9 @@ y_pred = model.predict(val_dicts)
 ```
 
 ## Serving 
+
+Poll: "What can we use for serving an ML model?"
+
 
 Now let's go to the `serve` folder and create a virtual 
 environment
