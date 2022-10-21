@@ -21,6 +21,8 @@ any tool.
 
 ## What's MLOps 
 
+Poll: What's MLOps?
+
 * https://datatalks.club/blog/mlops-10-minutes.html
 
 
@@ -49,12 +51,16 @@ pipenv install scikit-learn==1.1.2 pandas pyarrow seaborn
 pipenv install --dev jupyter
 ```
 
-Download the data from the [NYC TLC website](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page):
+On Linux you might also need to instal `pexpect` for jupyter:
 
 ```bash
-wget https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2022-01.parquet
-wget https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2022-02.parquet
+pipenv install --dev jupyter pexpect
 ```
+
+We will use the data from the [NYC TLC website](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page):
+
+* Train: https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2022-01.parquet
+* Validation: https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2022-02.parquet
 
 Run the notebook
 
@@ -292,7 +298,16 @@ dumping using Kinesis Firehose to save the results to S3.
 
 Now we start sending the requests and collect enough of them for a couple of days.
 
-Let's analyze them (see the notebook in [monitor](monitor/)).
+Let's analyze them (see the notebook in the [monitor](train/monitor.ipynb) notebook in the [train](train/) folder).
+
+For that let's pretend we saved all the predictions, but in reality 
+we'll just run them in our notebook
+
+Let's use these datasets:
+
+* https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2022-03.parquet
+* https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2022-06.parquet
+* https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-06.parquet
 
 After that, we can extract this notebook to a script, and if we
 detect an issue, send an alert, re-train the model or do
