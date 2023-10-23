@@ -6,11 +6,11 @@ This is stripped-down version of
 
 About the instructor:
 
-* Principal Data Scientist at OLX Group
-* Founder of [DataTalks.Club](https://datatalks.club/) - community of 22k data enthusiasts
+* Founder of [DataTalks.Club](https://datatalks.club/) - community of 40k+ data enthusiasts
 * Author of [ML Bookcamp](https://mlbookcamp.com/)
 * Instructor of [ML Zoomcamp](http://mlzoomcamp.com/) and [MLOps Zoomcamp](https://github.com/DataTalksClub/mlops-zoomcamp) 
-* Connect with me on [LinkedIn](https://www.linkedin.com/in/agrigorev/) and [Twitter](https://twitter.com/Al_Grigor) 
+* Connect with me on [LinkedIn](https://www.linkedin.com/in/agrigorev/) and [Twitter](https://twitter.com/Al_Grigor)
+* Do you want to run a similar workshop at your company? Write me at alexey@datatalks.club
 
 
 In this workshop, we will:
@@ -53,22 +53,47 @@ Poll: What's MLOps?
 * Copy this notebook to "duration-prediction.ipynb"
 * This model is used for preducting the duration of a taxi trip
 
+You can use any environment for running the content. In the workshop,
+we rented an EC2 instance on AWS:
+
+- Name: "mlops-workshop-2023"
+- Ubuntu 22.04 64 bit
+- Instance type: t2.xlarge
+- 30 gb disk space
+- Give it an IAM role with S3 read/write access
+- We will need to forward ports 8888 and 5000
+
+
+Script for preparing the instance:
+
+
+```bash
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -b
+rm Miniconda3-latest-Linux-x86_64.sh
+
+# add it to .bashrc
+export PATH="$HOME/miniconda3/bin:$PATH"
+
+sudo apt install jq
+```
+
 We'll start with preparing the environement for the workshop
 
 ```bash
 pip install pipenv 
 ```
 
-Create the env:
+Create the env in a separate folder (e.g. "train"):
 
 ```bash
-pipenv --python=3.9
+pipenv --python=3.11
 ```
 
 Install the dependencies
 
 ```bash
-pipenv install scikit-learn==1.1.2 pandas pyarrow seaborn
+pipenv install scikit-learn==1.3.1 pandas pyarrow seaborn
 pipenv install --dev jupyter
 ```
 
@@ -94,6 +119,13 @@ We will use the data from the [NYC TLC website](https://www1.nyc.gov/site/tlc/ab
 * Train: https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2022-01.parquet
 * Validation: https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2022-02.parquet
 
+Download the starter notebook:
+
+```bash
+wget https://raw.githubusercontent.com/alexeygrigorev/lightweight-mlops-zoomcamp/main/train/duration-prediction-starter.ipynb
+mv duration-prediction-starter.ipynb duration-prediction.ipynb
+```
+
 Run the notebook
 
 ```bash
@@ -105,7 +137,7 @@ pipenv run jupyter notebook
 First, let's add mlflow for tracking experiments 
 
 ```bash
-pipenv install mlflow boto3
+pipenv install mlflow==2.7.1 boto3
 ```
 
 Run MLFlow locally (replace it with your bucket name)
@@ -122,7 +154,7 @@ Open it at http://localhost:5000/
 Connect to the server from the notebook
 
 ```python
-import mflow
+import mlflow
 
 mlflow.set_tracking_uri("http://localhost:5000")
 mlflow.set_experiment("nyc-taxi-experiment")
@@ -158,7 +190,7 @@ with mlflow.start_run():
     with open('dict_vectorizer.bin', 'wb') as f_out:
         pickle.dump(dv, f_out)
     mlflow.log_artifact('dict_vectorizer.bin')
-    
+
     mlflow.sklearn.log_model(lr, 'model')
 ```
 
@@ -212,11 +244,25 @@ And use it:
 y_pred = model.predict(val_dicts)
 ```
 
+or
+
+```python
+trip = {
+    'PULocationID': '43',
+    'DOLocationID': '238',
+    'trip_distance': 1.16
+}
+
+model.predict(trip)
+```
+
 In some cases we don't want to depend on the MLFlow model registry
 to be always available. In this case, we can get the S3 path
 of the model and use it directly for initializing the model
 
 ```bash
+wget https://raw.githubusercontent.com/alexeygrigorev/lightweight-mlops-zoomcamp/main/train/storage_uri.py
+
 MODEL_METADATA=$(pipenv run python storage_uri.py \
     --tracking-uri http://localhost:5000 \
     --model-name trip_duration \
@@ -235,17 +281,24 @@ y_pred = model.predict(val_dicts)
 
 Poll: "What can we use for serving an ML model?"
 
-
 Now let's go to the `serve` folder and create a virtual 
 environment
 
 ```bash
-pipenv --python=3.9
-pipenv install scikit-learn==1.1.2 mlflow==1.29.0 boto3 flask gunicorn
+pipenv --python=3.11
+pipenv install \
+    scikit-learn==1.3.1 \
+    mlflow==2.7.1 \
+    boto3 \
+    flask \
+    gunicorn
 ```
 
 Create a simple flask app (see [`serve.py`](serve/serve.py))
 
+```bash
+wget https://raw.githubusercontent.com/alexeygrigorev/lightweight-mlops-zoomcamp/main/serve/serve.py
+```
 
 Run it:
 
@@ -300,8 +353,12 @@ We can change the request to look like that:
 }
 ```
 
-Let's change the serve.py file to handle this and also return 
+Let's change the `serve.py` file to handle this and also return 
 the ID along with the predictions (see [`serve_v2.py`](serve/serve_v2.py))
+
+```bash
+wget https://raw.githubusercontent.com/alexeygrigorev/lightweight-mlops-zoomcamp/main/serve/serve_v2.py
+```
 
 New request: 
 
@@ -329,7 +386,8 @@ Here we will use filesystem, but in practice you should never do it
 and use tools like logstash, kafka, kinesis, mongo and so on.
 
 A good approach could be writing results to Kinesis and then
-dumping using Kinesis Firehose to save the results to S3.
+dumping using Kinesis Firehose to save the results to S3
+(see an example [here](https://github.com/alexeygrigorev/hands-on-mlops-workshop))
 
 Now we start sending the requests and collect enough of them for a couple of days.
 
